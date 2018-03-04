@@ -83,6 +83,7 @@ public class IconButton : Gtk.ToggleButton
     public GLib.DesktopAppInfo? ainfo;
     private Gtk.MenuItem pinnage;
     private Gtk.MenuItem unpinnage;
+    private Gtk.MenuItem opennew;
     private Gtk.SeparatorMenuItem sep_item;
 
     public bool requested_pin = false;
@@ -110,13 +111,27 @@ public class IconButton : Gtk.ToggleButton
         var sep = new Gtk.SeparatorMenuItem();
         menu.append(sep);
         sep_item = sep;
-        pinnage = new Gtk.MenuItem.with_label(_("Pin to panel"));
+        opennew = new Gtk.MenuItem.with_label(_("New Instance"));
+	pinnage = new Gtk.MenuItem.with_label(_("Pin to panel"));
         unpinnage = new Gtk.MenuItem.with_label(_("Unpin from panel"));
         sep.show();
         menu.append(pinnage);
         menu.append(unpinnage);
+	menu.append(opennew);
+ 
+        opennew.activate.connect(()=> {
+            /* Launch ourselves. */
+            try {
+                launch_context.set_screen(get_screen());
+                ainfo.launch(null, launch_context);
+            } catch (Error e) {
+                /* Animate a UFAILED image? */
+                message(e.message);
+            }
+	});
+      
 
-        /* Handle running instance pin/unpin */
+	/* Handle running instance pin/unpin */
         pinnage.activate.connect(()=> {
             requested_pin = true;
             DesktopHelper.set_pinned(settings, ainfo, true);
@@ -132,6 +147,7 @@ public class IconButton : Gtk.ToggleButton
         this.update_app_actions(menu);
         this.update_icon();
     }
+
 
     // Insert app actions at the foot of a given menu
     public void update_app_actions(Gtk.Menu? menu)
@@ -414,8 +430,9 @@ public class IconButton : Gtk.ToggleButton
         image.pixel_size = icon_size;
         queue_resize();
     }
+   	
 
-    /**
+	 /**
      * Either show the actions menu, or activate our window
      */
     public virtual bool on_button_release(Gdk.EventButton event)
@@ -426,9 +443,11 @@ public class IconButton : Gtk.ToggleButton
             if (this is /*Sparta*/ PinnedIconButton) {
                 unpinnage.show();
                 pinnage.hide();
+		opennew.show();
             } else {
                 unpinnage.hide();
                 pinnage.show();
+		opennew.show();
             }
         }
 
@@ -440,7 +459,7 @@ public class IconButton : Gtk.ToggleButton
             if (sep_item != null) {
                 sep_item.show();
             }
-        }
+        }	
 
         // Right click, i.e. actions menu
         if (event.button == 3) {
@@ -477,8 +496,8 @@ public class PinnedIconButton : IconButton
     unowned Settings? settings;
 
     public PinnedIconButton(Settings settings, DesktopAppInfo info, int size, Budgie.AppSystem? helper, int panel_size)
-    {
-        base(settings, null, size, info, helper, panel_size);
+    {	
+	base(settings, null, size, info, helper, panel_size);
         this.app_info = info;
         this.settings = settings;
 
@@ -487,8 +506,8 @@ public class PinnedIconButton : IconButton
 
         alt_menu = new Gtk.Menu();
         var item = new Gtk.MenuItem.with_label(_("Unpin from panel"));
-        alt_menu.add(item);
-        item.show_all();
+	alt_menu.add(item);
+	item.show_all();
 
         this.update_app_actions(alt_menu);
 
@@ -497,7 +516,7 @@ public class PinnedIconButton : IconButton
         });
         set_can_focus(false);
         
-        // Drag and drop
+	 // Drag and drop
         Gtk.drag_source_set(this, Gdk.ModifierType.BUTTON1_MASK, DesktopHelper.targets, Gdk.DragAction.MOVE);
         
         drag_begin.connect((context)=> {
