@@ -83,9 +83,8 @@ public class IconButton : Gtk.ToggleButton
     public GLib.DesktopAppInfo? ainfo;
     private Gtk.MenuItem pinnage;
     private Gtk.MenuItem unpinnage;
-    private Gtk.MenuItem opennew;
+    private Gtk.MenuItem opennew; 
     private Gtk.SeparatorMenuItem sep_item;
-
     public bool requested_pin = false;
 
     private bool we_urgent = false;
@@ -93,31 +92,35 @@ public class IconButton : Gtk.ToggleButton
     protected bool should_fade_in = true;
     private uint source_id;
     protected Gtk.Allocation our_alloc;
-
-    protected int current_cycles = 0;
-
+    public unowned List<Wnck.Window> win_list;
+    protected int current_cycles = 0; 
+  
     unowned Settings? settings;
+    public Gtk.MenuItem entry_name;
 
     public int panel_size = 10;
     public Gtk.Orientation orient = Gtk.Orientation.HORIZONTAL;
 
-    protected Gdk.AppLaunchContext launch_context;
+    protected Gdk.AppLaunchContext launch_context; 
 
+	 
     private void update_app_info()
     {
         // Actions menu
         menu = new Wnck.ActionMenu(window);
 
-        var sep = new Gtk.SeparatorMenuItem();
+	var sep = new Gtk.SeparatorMenuItem();
         menu.append(sep);
         sep_item = sep;
         opennew = new Gtk.MenuItem.with_label(_("New Instance"));
 	pinnage = new Gtk.MenuItem.with_label(_("Pin to panel"));
         unpinnage = new Gtk.MenuItem.with_label(_("Unpin from panel"));
+       
         sep.show();
         menu.append(pinnage);
         menu.append(unpinnage);
 	menu.append(opennew);
+
  
         opennew.activate.connect(()=> {
             /* Launch ourselves. */
@@ -470,17 +473,20 @@ public class IconButton : Gtk.ToggleButton
             return base.button_release_event(event);
         }
 
-        // Normal left click, go handle the window
-        if (window.is_minimized()) {
-            window.unminimize(timestamp);
-            window.activate(timestamp);
-        } else {
-            if (window.is_active()) {
-                window.minimize();
-            } else {
-                window.activate(timestamp);
-            }
-        }
+	WindowList.add_names();
+        WindowList.menu.popup(null, null, null, event.button, timestamp);	
+	
+	// Normal left click, go handle the window
+ //       if (window.is_minimized()) {
+ //           window.unminimize(timestamp);
+ //           window.activate(timestamp);
+ //       } else {
+ //           if (window.is_active()) {
+ //               window.minimize();
+ //           } else {
+ //               window.activate(timestamp);
+ //           }
+ //       }
 
         return base.button_release_event(event);
     }

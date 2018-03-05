@@ -54,6 +54,33 @@ public class DesktopHelper : Object
     }
 }
 
+public class WindowList : Gtk.Menu {
+	
+   public static Wnck.Screen screen;
+   public static unowned List<Wnck.Window> count;
+   public static  Gtk.MenuItem entry_name;
+   public static Gtk.MenuItem entry_name2;
+   public static Gtk.Menu menu ;	
+   
+   public static void add_names(){
+
+   screen = Wnck.Screen.get_default();
+   menu = new Gtk.Menu();	   
+   count = screen.get_windows();
+   screen.force_update();
+
+	count.foreach ((entry) => {
+	entry_name = new Gtk.MenuItem.with_label(_(entry.get_name()));
+	menu.append(entry_name);
+	});
+   	
+	entry_name2 = new Gtk.MenuItem.with_label(_("test"));
+	menu.append(entry_name2);
+	WindowList.menu.show_all();
+}
+}
+
+
 public class IconTasklistApplet : Budgie.Applet
 {
 
@@ -73,8 +100,9 @@ public class IconTasklistApplet : Budgie.Applet
 
     public string uuid { public set ; public get ; }
 
-    private Gtk.Orientation orient;
-
+    private Gtk.Orientation orient;  
+    
+    
     protected void window_opened(Wnck.Window window)
     {
         // doesn't go on our list
