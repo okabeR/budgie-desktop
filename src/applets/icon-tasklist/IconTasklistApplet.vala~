@@ -75,6 +75,9 @@ public class WindowList : Gtk.Menu {
 	entry_name = new Gtk.MenuItem.with_label(_(entry.get_name()));
 	menu.add(entry_name);
 
+	}
+	});
+   	
 	entry_name.activate.connect(()=> {
 	// Normal left click, go handle the window
        if (window.is_minimized()) {
@@ -88,13 +91,6 @@ public class WindowList : Gtk.Menu {
            }
         }
 	});
-
-
-
-	}
-	});
-   	
-
 
 
 
